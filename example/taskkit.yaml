@@ -1,0 +1,8 @@
+tasks:
+  scripts: '{{CWD}}/../index.js'
+  default:
+    - 'scripts'
+scripts:
+  minify: true
+  files:
+    'dist.js': 'index.js'
