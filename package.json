@@ -1,0 +1,40 @@
+{
+  "name": "taskkit-rollup",
+  "version": "0.0.1",
+  "description": "TaskKit for Rollup",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/firstandthird/taskkit-rollup.git"
+  },
+  "keywords": [
+    "taskkit",
+    "build",
+    "babel",
+    "rollup"
+  ],
+  "author": "Greg Allen <code@firstandthird.com> (http://firstandthird.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/firstandthird/taskkit-rollup/issues"
+  },
+  "homepage": "https://github.com/firstandthird/taskkit-rollup#readme",
+  "dependencies": {
+    "babel-preset-es2015": "^6.22.0",
+    "rollup": "^0.41.4",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "taskkit-task": "0.0.11"
+  },
+  "devDependencies": {
+    "eslint": "^3.14.0",
+    "eslint-config-firstandthird": "^3.2.0",
+    "eslint-plugin-import": "^2.2.0"
+  },
+  "eslintConfig": {
+    "extends": "firstandthird"
+  }
+}
