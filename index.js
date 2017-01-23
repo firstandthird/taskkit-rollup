@@ -11,18 +11,26 @@ class RollupTask extends TaskKitTask {
   }
 
   process(input, filename, done) {
+    const babelPresets = [
+      ['es2015', { modules: false }]
+    ];
+    if (this.options.minify) {
+      babelPresets.push(['babili']);
+    }
+    const plugins = [
+      babel({
+        exclude: 'node_modules/**',
+        presets: babelPresets
+      }),
+      nodeResolve({
+        module: true,
+        main: true,
+        browser: true
+      })
+    ];
     rollup({
       entry: input,
-      plugins: [
-        babel({
-          exclude: 'node_modules/**'
-        }),
-        nodeResolve({
-          module: true,
-          main: true,
-          browser: true
-        })
-      ]
+      plugins
     }).then(bundle => {
       const result = bundle.generate({
         //output format - 'amd', 'cjs', 'es', 'iife', 'umd'
