@@ -14,16 +14,26 @@ class RollupTask extends TaskKitTask {
     return 'Compiles your various client-executable files into a minified, source-mapped, browser-compatible js file that you can embed in a webpage';
   }
 
+  get defaultOptions() {
+    return {
+      minify: (process.env.NODE_ENV === 'production'),
+      nodeResolve: {
+        module: true,
+        main: true,
+        browser: true
+      },
+      babel: {
+        exclude: 'node_modules/**'
+      }
+    };
+  }
+
   process(input, filename, done) {
     const babelPresets = [
       ['es2015', { modules: false }]
     ];
     const plugins = [
-      nodeResolve({
-        module: true,
-        main: true,
-        browser: true
-      })
+      nodeResolve(this.options.nodeResolve)
     ];
     if (this.options.commonjs) {
       plugins.push(globals());
@@ -31,7 +41,7 @@ class RollupTask extends TaskKitTask {
       plugins.push(commonjs(this.options.commonjs));
     }
     plugins.push(babel({
-      exclude: 'node_modules/**',
+      exclude: this.options.babel.exclude,
       presets: babelPresets,
       babelrc: false
     }));
