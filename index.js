@@ -6,6 +6,7 @@ const nodeResolve = require('rollup-plugin-node-resolve');
 const commonjs = require('rollup-plugin-commonjs');
 const builtins = require('rollup-plugin-node-builtins');
 const globals = require('rollup-plugin-node-globals');
+const uglify = require('rollup-plugin-uglify');
 
 class RollupTask extends TaskKitTask {
 
@@ -17,9 +18,6 @@ class RollupTask extends TaskKitTask {
     const babelPresets = [
       ['es2015', { modules: false }]
     ];
-    if (this.options.minify) {
-      babelPresets.push(['babili']);
-    }
     const plugins = [
       nodeResolve({
         module: true,
@@ -37,6 +35,10 @@ class RollupTask extends TaskKitTask {
       presets: babelPresets,
       babelrc: false
     }));
+
+    if (this.options.minify) {
+      plugins.push(uglify());
+    }
 
     rollup({
       entry: input,
