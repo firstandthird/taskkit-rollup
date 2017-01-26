@@ -3,6 +3,8 @@ tasks:
   default:
     - 'scripts'
 scripts:
-  minify: true
+  minify: false
+  commonjs:
+    enabled: true
   files:
     'dist.js': 'index.js'

@@ -1,5 +1,8 @@
 {
   "scripts": {
     "start": "taskkit"
+  },
+  "devDependencies": {
+    "domodule": "^4.0.0"
   }
 }
