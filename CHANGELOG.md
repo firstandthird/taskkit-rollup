@@ -1,4 +1,10 @@
 
+0.0.6 / 2017-01-25
+==================
+
+  * more complex example
+  * more granular options for commonjs, builtins and global. reordered those plugins
+
 0.0.5 / 2017-01-24
 ==================
 
