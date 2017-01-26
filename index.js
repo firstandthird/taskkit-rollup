@@ -22,6 +22,11 @@ class RollupTask extends TaskKitTask {
         main: true,
         browser: true
       },
+      commonjs: {
+        enabled: false
+      },
+      globals: false,
+      builtins: false,
       babel: {
         exclude: 'node_modules/**'
       }
@@ -35,10 +40,14 @@ class RollupTask extends TaskKitTask {
     const plugins = [
       nodeResolve(this.options.nodeResolve)
     ];
-    if (this.options.commonjs) {
-      plugins.push(globals());
-      plugins.push(builtins());
+    if (this.options.commonjs.enabled) {
       plugins.push(commonjs(this.options.commonjs));
+    }
+    if (this.options.globals) {
+      plugins.push(globals());
+    }
+    if (this.options.builtins) {
+      plugins.push(builtins());
     }
     plugins.push(babel({
       exclude: this.options.babel.exclude,
