@@ -7,6 +7,7 @@ const commonjs = require('rollup-plugin-commonjs');
 const builtins = require('rollup-plugin-node-builtins');
 const globals = require('rollup-plugin-node-globals');
 const uglify = require('rollup-plugin-uglify');
+const path = require('path');
 
 class RollupTask extends TaskKitTask {
 
@@ -17,6 +18,11 @@ class RollupTask extends TaskKitTask {
   get defaultOptions() {
     return {
       minify: (process.env.NODE_ENV === 'production'),
+      rollup: {
+        format: 'iife',
+        moduleName: '',
+        sourceMap: true
+      },
       nodeResolve: {
         module: true,
         main: true,
@@ -63,12 +69,15 @@ class RollupTask extends TaskKitTask {
       entry: input,
       plugins
     }).then(bundle => {
-      const result = bundle.generate({
-        //output format - 'amd', 'cjs', 'es', 'iife', 'umd'
-        format: 'iife',
-        moduleName: this.options.name,
+      const result = bundle.generate(this.options.rollup);
+      //write sourcemap
+      this.write(`${filename}.map`, result.map.toString(), (err) => {
+        if (err) {
+          return done(err);
+        }
+        const basename = path.basename(filename);
+        this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`, done);
       });
-      this.write(filename, result.code, done);
     }).catch(err => {
       done(err);
     });
