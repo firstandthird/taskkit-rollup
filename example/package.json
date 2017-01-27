@@ -3,6 +3,10 @@
     "start": "taskkit"
   },
   "devDependencies": {
+    "domassist": "^1.3.3",
     "domodule": "^4.0.0"
+  },
+  "dependencies": {
+    "@firstandthird/complete": "^1.0.0-beta.3"
   }
 }
