@@ -1,4 +1,14 @@
 
+0.0.7 / 2017-01-27
+==================
+
+  * more advanced example
+  * enable commonjs, globals, builtins by default. run babel on all files by default
+  * updated taskkit-task
+  * create sourcemaps by default
+  * set dep versions
+  * updated taskkit
+
 0.0.6 / 2017-01-25
 ==================
 
