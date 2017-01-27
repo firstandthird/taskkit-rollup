@@ -29,12 +29,12 @@ class RollupTask extends TaskKitTask {
         browser: true
       },
       commonjs: {
-        enabled: false
+        enabled: true
       },
-      globals: false,
-      builtins: false,
+      globals: true,
+      builtins: true,
       babel: {
-        exclude: 'node_modules/**'
+        exclude: []
       }
     };
   }
