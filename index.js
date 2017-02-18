@@ -41,7 +41,7 @@ class RollupTask extends TaskKitTask {
 
   process(input, filename, done) {
     const babelPresets = [
-      ['es2015', { modules: false }]
+      ['es2015-rollup']
     ];
     const plugins = [
       nodeResolve(this.options.nodeResolve)
