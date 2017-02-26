@@ -19,9 +19,12 @@ class RollupTask extends TaskKitTask {
     return {
       minify: (process.env.NODE_ENV === 'production'),
       rollup: {
-        format: 'iife',
-        moduleName: '',
-        sourceMap: true
+        bundle: {
+          format: 'iife',
+          moduleName: 'app',
+          sourceMap: true,
+        },
+        external: []
       },
       nodeResolve: {
         module: true,
@@ -67,9 +70,12 @@ class RollupTask extends TaskKitTask {
 
     rollup({
       entry: input,
-      plugins
+      plugins,
+      external: this.options.rollup.external,
+      cache: this.cache
     }).then(bundle => {
-      const result = bundle.generate(this.options.rollup);
+      this.cache = bundle;
+      const result = bundle.generate(this.options.rollup.bundle);
       //write sourcemap
       this.write(`${filename}.map`, result.map.toString(), (err) => {
         if (err) {
