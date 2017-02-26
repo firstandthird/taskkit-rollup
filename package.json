@@ -31,13 +31,12 @@
     "rollup-plugin-node-globals": "1.1.0",
     "rollup-plugin-node-resolve": "2.0.0",
     "rollup-plugin-uglify": "1.0.1",
-    "taskkit-task": "0.0.13"
+    "taskkit-task": "0.0.14"
   },
   "devDependencies": {
     "eslint": "3.14.0",
     "eslint-config-firstandthird": "3.2.0",
-    "eslint-plugin-import": "2.2.0",
-    "taskkit": "0.0.13"
+    "eslint-plugin-import": "2.2.0"
   },
   "eslintConfig": {
     "extends": "firstandthird"
