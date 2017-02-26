@@ -1,4 +1,5 @@
 import Domodule from 'domodule';
+import Codemirror from 'codemirror';
 import Complete from '@firstandthird/complete';
 import { ready } from 'domassist';
 import bestNumber from './commonjs';

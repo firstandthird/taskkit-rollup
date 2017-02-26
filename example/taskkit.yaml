@@ -3,7 +3,9 @@ tasks:
   default:
     - 'scripts'
 scripts:
-  minify: false
+  minify: true
+  rollup:
+    external: 'codemirror'
   commonjs:
     enabled: true
   files:
