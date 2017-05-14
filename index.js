@@ -15,6 +15,10 @@ class RollupTask extends TaskKitTask {
     return 'Compiles your various client-executable files into a minified, source-mapped, browser-compatible js file that you can embed in a webpage';
   }
 
+  get classModule() {
+    return path.join(__dirname, 'index.js');
+  }
+
   get defaultOptions() {
     return {
       minify: (process.env.NODE_ENV === 'production'),

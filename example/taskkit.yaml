@@ -3,9 +3,11 @@ tasks:
   default:
     - 'scripts'
 scripts:
+  multithread: true
   minify: true
   rollup:
     external: 'codemirror'
+    multithread: true
   commonjs:
     enabled: true
   files:
