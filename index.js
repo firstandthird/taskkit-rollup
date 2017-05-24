@@ -23,7 +23,7 @@ class RollupTask extends TaskKitTask {
 
   get defaultOptions() {
     return {
-      multithread: true,
+      multithread: false,
       minify: (process.env.NODE_ENV === 'production'),
       rollup: {
         bundle: {
