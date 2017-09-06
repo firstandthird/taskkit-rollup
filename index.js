@@ -28,8 +28,8 @@ class RollupTask extends TaskKitTask {
       rollup: {
         bundle: {
           format: 'iife',
-          moduleName: 'app',
-          sourceMap: true,
+          name: 'app',
+          sourcemap: true,
         },
         external: []
       },
@@ -74,23 +74,27 @@ class RollupTask extends TaskKitTask {
     if (this.options.minify) {
       plugins.push(uglify());
     }
-
     rollup({
-      entry: input,
+      input,
       plugins,
       external: this.options.rollup.external,
       cache: this.cache
     }).then(bundle => {
       this.cache = bundle;
-      const result = bundle.generate(this.options.rollup.bundle);
-      //write sourcemap
-      this.write(`${filename}.map`, result.map.toString(), (err) => {
-        if (err) {
-          return done(err);
-        }
-        const basename = path.basename(filename);
-        this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`, done);
-      });
+      bundle.generate(this.options.rollup.bundle)
+        .then((result) => {
+          if (!result) {
+            return done(new Error(`${input} resulted in an empty bundle`));
+          }
+          //write sourcemap
+          this.write(`${filename}.map`, result.map.toString(), (err) => {
+            if (err) {
+              return done(err);
+            }
+            const basename = path.basename(filename);
+            this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`, done);
+          });
+        });
     }).catch(err => {
       done(err);
     });
