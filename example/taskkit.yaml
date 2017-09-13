@@ -5,7 +5,8 @@ tasks:
 scripts:
   minify: true
   rollup:
-    external: 'codemirror'
+    external:
+      - 'codemirror'
   commonjs:
     enabled: true
   files:
