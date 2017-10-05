@@ -50,6 +50,7 @@ class RollupTask extends TaskKitTask {
   }
 
   process(input, filename, done) {
+    this.options.rollup.bundle.sourcemap = this.options.sourcemaps;
     const babelPresets = [
       [es2015]
     ];
