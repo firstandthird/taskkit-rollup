@@ -87,7 +87,7 @@ class RollupTask extends TaskKitTask {
           if (!result) {
             return done(new Error(`${input} resulted in an empty bundle`));
           }
-          if (!this.options.rollup.bundle.sourcemap) {
+          if (!this.options.sourcemaps) {
             return this.write(filename, result.code, done);
           }
           //write sourcemap
