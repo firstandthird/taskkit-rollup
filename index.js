@@ -70,7 +70,7 @@ class RollupTask extends TaskKitTask {
       plugins: [babelHelpers],
       exclude: this.options.babel.exclude,
       presets: babelPresets,
-      babelrc: false,
+      babelrc: false
     }));
 
     if (this.options.minify) {
