@@ -40,11 +40,7 @@ tap.test('map file disabled', (t) => {
   t.plan(2);
 
   const rollup = new TaskkitRollup('rollup', {
-    rollup: {
-      bundle: {
-        sourcemap: false
-      }
-    }
+    sourcemaps: false
   });
 
   try {
