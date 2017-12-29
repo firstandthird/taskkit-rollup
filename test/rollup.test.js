@@ -14,7 +14,9 @@ tap.test('setup', (t) => {
 tap.test('process', (t) => {
   t.plan(2);
 
-  const rollup = new TaskkitRollup();
+  const rollup = new TaskkitRollup('rollup', {
+    sourcemaps: true
+  });
 
   try {
     fs.unlinkSync('./test/output/domassist.js');
