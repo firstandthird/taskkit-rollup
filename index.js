@@ -7,7 +7,8 @@ const commonjs = require('rollup-plugin-commonjs');
 const builtins = require('rollup-plugin-node-builtins');
 const globals = require('rollup-plugin-node-globals');
 const uglify = require('rollup-plugin-uglify');
-const es2015 = require('babel-preset-es2015-rollup');
+const es2015 = require('babel-preset-env');
+const babelHelpers = require('babel-plugin-external-helpers');
 const path = require('path');
 
 class RollupTask extends TaskKitTask {
@@ -52,7 +53,7 @@ class RollupTask extends TaskKitTask {
   process(input, filename, done) {
     this.options.rollup.bundle.sourcemap = this.options.sourcemaps;
     const babelPresets = [
-      [es2015]
+      [es2015, { modules: false }]
     ];
     const plugins = [
       nodeResolve(this.options.nodeResolve)
@@ -67,6 +68,7 @@ class RollupTask extends TaskKitTask {
       plugins.push(builtins());
     }
     plugins.push(babel({
+      plugins: [babelHelpers],
       exclude: this.options.babel.exclude,
       presets: babelPresets,
       babelrc: false
