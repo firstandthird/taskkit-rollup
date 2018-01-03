@@ -3,6 +3,7 @@ tasks:
   default:
     - 'scripts'
 scripts:
+  sourcemaps: true
   minify: true
   rollup:
     external:

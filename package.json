@@ -4,7 +4,7 @@
   "description": "TaskKit for Rollup",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "tap test/*.js"
   },
   "repository": {
     "type": "git",
@@ -36,9 +36,12 @@
     "taskkit-task": "^1.0.2"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "domassist": "^1.10.0",
     "eslint": "3.14.0",
     "eslint-config-firstandthird": "3.2.0",
-    "eslint-plugin-import": "2.2.0"
+    "eslint-plugin-import": "2.2.0",
+    "tap": "^11.0.1"
   },
   "eslintConfig": {
     "extends": "firstandthird"
