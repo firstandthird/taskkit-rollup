@@ -26,11 +26,11 @@ class RollupTask extends TaskKitTask {
     return {
       multithread: false,
       minify: (process.env.NODE_ENV === 'production'),
+      sourcemap: true,
       rollup: {
         bundle: {
           format: 'iife',
-          name: 'app',
-          sourcemap: true,
+          name: 'app'
         },
         external: []
       },

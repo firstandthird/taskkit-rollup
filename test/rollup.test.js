@@ -24,7 +24,6 @@ tap.test('process', (t) => {
   t.plan(2);
 
   const rollup = new TaskkitRollup('rollup', {
-    sourcemap: true,
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     }
