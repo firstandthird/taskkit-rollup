@@ -30,7 +30,7 @@ class RollupTask extends TaskKitTask {
         bundle: {
           format: 'iife',
           name: 'app',
-          sourcemap: true,
+          sourcemap: this.options.sourcemap,
         },
         external: []
       },
