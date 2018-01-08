@@ -51,7 +51,7 @@ class RollupTask extends TaskKitTask {
   }
 
   process(input, filename, done) {
-    this.options.rollup.bundle.sourcemap = this.options.sourcemaps;
+    this.options.rollup.bundle.sourcemap = this.options.sourcemap;
     const babelPresets = [
       [es2015, { modules: false }]
     ];
@@ -89,7 +89,7 @@ class RollupTask extends TaskKitTask {
           if (!result) {
             return done(new Error(`${input} resulted in an empty bundle`));
           }
-          if (!this.options.sourcemaps) {
+          if (!this.options.sourcemap) {
             return this.write(filename, result.code, done);
           }
           //write sourcemap
