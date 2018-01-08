@@ -38,9 +38,9 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "domassist": "^1.10.0",
-    "eslint": "3.14.0",
-    "eslint-config-firstandthird": "3.2.0",
-    "eslint-plugin-import": "2.2.0",
+    "eslint": "^4.15.0",
+    "eslint-config-firstandthird": "^4.3.0",
+    "eslint-plugin-import": "^2.8.0",
     "tap": "^11.0.1"
   },
   "eslintConfig": {
