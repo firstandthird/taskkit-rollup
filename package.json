@@ -4,7 +4,7 @@
   "description": "TaskKit for Rollup",
   "main": "index.js",
   "scripts": {
-    "test": "tap test/*.js"
+    "test": "eslint . && tap test/*.js"
   },
   "repository": {
     "type": "git",
@@ -45,5 +45,11 @@
   },
   "eslintConfig": {
     "extends": "firstandthird"
-  }
+  },
+  "eslintIgnore": [
+    "test/input",
+    "test/output",
+    "test/expected",
+    "example"
+  ]
 }

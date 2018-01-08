@@ -12,7 +12,6 @@ const babelHelpers = require('babel-plugin-external-helpers');
 const path = require('path');
 
 class RollupTask extends TaskKitTask {
-
   get description() {
     return 'Compiles your various client-executable files into a minified, source-mapped, browser-compatible js file that you can embed in a webpage';
   }
