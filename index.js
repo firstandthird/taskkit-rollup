@@ -14,6 +14,9 @@ const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
+const exists = util.promisify(fs.exists);
+const mkdir = util.promisify(fs.mkdir);
+
 class RollupTask extends TaskKitTask {
   get description() {
     return 'Compiles your various client-executable files into a minified, source-mapped, browser-compatible js file that you can embed in a webpage';
@@ -53,7 +56,7 @@ class RollupTask extends TaskKitTask {
   }
 
   async process(input, filename) {
-    const cacheName = `${path.basename(filename)}.rollup-cache`;
+    const cacheName = `./rollup-cache/${path.basename(filename)}.rollup-cache`;
     this.options.rollup.bundle.sourcemap = this.options.sourcemap;
     const babelPresets = [
       [es2015, { modules: false }]
@@ -79,7 +82,7 @@ class RollupTask extends TaskKitTask {
     if (this.options.minify) {
       plugins.push(uglify());
     }
-    if (this.options.cache && fs.existsSync(cacheName)) {
+    if (this.options.cache && await exists(cacheName)) {
       this.cache = JSON.parse(await readFile(cacheName));
     }
     const bundle = await rollup({
@@ -90,6 +93,10 @@ class RollupTask extends TaskKitTask {
     });
     this.cache = bundle;
     if (this.options.cache) {
+      // make the caching dir if it does not exist:
+      if (!await exists('./rollup-cache')) {
+        await (mkdir('./rollup-cache'));
+      }
       await writeFile(cacheName, JSON.stringify(this.cache));
     }
     const result = await bundle.generate(this.options.rollup.bundle);

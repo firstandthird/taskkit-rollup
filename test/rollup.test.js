@@ -60,7 +60,7 @@ tap.test('map file disabled', async (t) => {
 });
 
 tap.test('can store and read from file cache', async(t) => {
-  const cachePath = 'domassist.js.rollup-cache';
+  const cachePath = './rollup-cache/domassist.js.rollup-cache';
   if (fs.existsSync(cachePath)) {
     fs.unlinkSync(cachePath);
   }
