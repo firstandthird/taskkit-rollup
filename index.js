@@ -51,6 +51,7 @@ class RollupTask extends TaskKitTask {
   }
 
   async process(input, filename) {
+    const cacheName = `${path.basename(filename)}.rollup-cache`;
     this.options.rollup.bundle.sourcemap = this.options.sourcemap;
     const babelPresets = [
       [es2015, { modules: false }]
@@ -76,8 +77,8 @@ class RollupTask extends TaskKitTask {
     if (this.options.minify) {
       plugins.push(uglify());
     }
-    if (fs.existsSync(this.options.cachePath)) {
-      this.cache = JSON.parse(fs.readFileSync(this.options.cachePath));
+    if (this.options.cache && fs.existsSync(cacheName)) {
+      this.cache = JSON.parse(fs.readFileSync(cacheName));
     }
     const bundle = await rollup({
       input,
@@ -86,8 +87,8 @@ class RollupTask extends TaskKitTask {
       cache: this.cache
     });
     this.cache = bundle;
-    if (this.options.cachePath) {
-      fs.writeFileSync(this.options.cachePath, JSON.stringify(this.cache));
+    if (this.options.cache) {
+      fs.writeFileSync(cacheName, JSON.stringify(this.cache));
     }
     const result = await bundle.generate(this.options.rollup.bundle);
     if (!result) {

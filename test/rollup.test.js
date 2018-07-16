@@ -60,7 +60,7 @@ tap.test('map file disabled', async (t) => {
 });
 
 tap.test('can store and read from file cache', async(t) => {
-  const cachePath = './test/rollup.cache';
+  const cachePath = 'domassist.js.rollup-cache';
   if (fs.existsSync(cachePath)) {
     fs.unlinkSync(cachePath);
   }
@@ -68,7 +68,7 @@ tap.test('can store and read from file cache', async(t) => {
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     },
-    cachePath
+    cache: true
   });
 
   clean();
@@ -83,12 +83,14 @@ tap.test('can store and read from file cache', async(t) => {
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     },
-    cachePath
+    cache: true
   });
 
   await rollup.execute();
   const end2 = new Date().getTime();
-
+  // show the performance increase as part of the test:
+  console.log(`First execution: ${end1 - start}ms`);
+  console.log(`Cached execution: ${end2 - end1}ms`);
   t.ok(end1 - start > end2 - end1, 'executes faster when using an existing cache');
   t.end();
 });
