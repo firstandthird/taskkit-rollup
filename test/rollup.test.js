@@ -58,3 +58,37 @@ tap.test('map file disabled', async (t) => {
   t.equal(fs.existsSync('./test/output/domassist.js'), true, 'output exists');
   t.equal(fs.existsSync('./test/output/domassist.js.map'), false, 'map wasn\'t created');
 });
+
+tap.test('can store and read from file cache', async(t) => {
+  const cachePath = './test/rollup.cache';
+  if (fs.existsSync(cachePath)) {
+    fs.unlinkSync(cachePath);
+  }
+  let rollup = new TaskkitRollup('rollup', {
+    files: {
+      './test/output/domassist.js': './test/input/domassist.js'
+    },
+    cachePath
+  });
+
+  clean();
+
+  // get the execution time for the first run:
+  const start = new Date().getTime();
+  await rollup.execute();
+  const end1 = new Date().getTime();
+
+  // make a new object that uses the same cache:
+  rollup = new TaskkitRollup('rollup', {
+    files: {
+      './test/output/domassist.js': './test/input/domassist.js'
+    },
+    cachePath
+  });
+
+  await rollup.execute();
+  const end2 = new Date().getTime();
+
+  t.ok(end1 - start > end2 - end1, 'executes faster when using an existing cache');
+  t.end();
+});

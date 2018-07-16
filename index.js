@@ -10,6 +10,7 @@ const uglify = require('rollup-plugin-uglify');
 const es2015 = require('babel-preset-env');
 const babelHelpers = require('babel-plugin-external-helpers');
 const path = require('path');
+const fs = require('fs');
 
 class RollupTask extends TaskKitTask {
   get description() {
@@ -75,7 +76,9 @@ class RollupTask extends TaskKitTask {
     if (this.options.minify) {
       plugins.push(uglify());
     }
-
+    if (fs.existsSync(this.options.cachePath)) {
+      this.cache = JSON.parse(fs.readFileSync(this.options.cachePath));
+    }
     const bundle = await rollup({
       input,
       plugins,
@@ -83,6 +86,9 @@ class RollupTask extends TaskKitTask {
       cache: this.cache
     });
     this.cache = bundle;
+    if (this.options.cachePath) {
+      fs.writeFileSync(this.options.cachePath, JSON.stringify(this.cache));
+    }
     const result = await bundle.generate(this.options.rollup.bundle);
     if (!result) {
       throw new Error(`${input} resulted in an empty bundle`);

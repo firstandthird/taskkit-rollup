@@ -1,6 +1,7 @@
 node_modules
 example/dist.js
 example/dist.js.map
+test/rollup.cache
 test/output/*.js
 test/output/*.js.map
 .idea/
