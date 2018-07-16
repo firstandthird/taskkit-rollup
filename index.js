@@ -49,7 +49,7 @@ class RollupTask extends TaskKitTask {
     };
   }
 
-  process(input, filename, done) {
+  async process(input, filename) {
     this.options.rollup.bundle.sourcemap = this.options.sourcemap;
     const babelPresets = [
       [es2015, { modules: false }]
@@ -72,37 +72,28 @@ class RollupTask extends TaskKitTask {
       presets: babelPresets,
       babelrc: false
     }));
-
     if (this.options.minify) {
       plugins.push(uglify());
     }
-    rollup({
+
+    const bundle = await rollup({
       input,
       plugins,
       external: this.options.rollup.external,
       cache: this.cache
-    }).then(bundle => {
-      this.cache = bundle;
-      bundle.generate(this.options.rollup.bundle)
-        .then((result) => {
-          if (!result) {
-            return done(new Error(`${input} resulted in an empty bundle`));
-          }
-          if (!this.options.sourcemap) {
-            return this.write(filename, result.code, done);
-          }
-          //write sourcemap
-          this.write(`${filename}.map`, result.map.toString(), (err) => {
-            if (err) {
-              return done(err);
-            }
-            const basename = path.basename(filename);
-            this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`, done);
-          });
-        });
-    }).catch(err => {
-      done(err);
     });
+    this.cache = bundle;
+    const result = await bundle.generate(this.options.rollup.bundle);
+    if (!result) {
+      throw new Error(`${input} resulted in an empty bundle`);
+    }
+    if (!this.options.sourcemap) {
+      return this.write(filename, result.code);
+    }
+    //write sourcemap
+    await this.write(`${filename}.map`, result.map.toString());
+    const basename = path.basename(filename);
+    await this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`);
   }
 }
 module.exports = RollupTask;

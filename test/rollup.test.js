@@ -20,7 +20,7 @@ tap.test('setup', (t) => {
   t.equal(typeof rollup.process, 'function', 'process is a function');
 });
 
-tap.test('process', (t) => {
+tap.test('process', async(t) => {
   t.plan(2);
 
   const rollup = new TaskkitRollup('rollup', {
@@ -31,22 +31,18 @@ tap.test('process', (t) => {
 
   clean();
 
-  rollup.execute((err, results) => {
-    if (err) {
-      throw err;
-    }
+  await rollup.execute();
 
-    const expected = fs.readFileSync('./test/expected/domassist.js', 'utf-8').trim();
-    const expectedMap = fs.readFileSync('./test/expected/domassist.js', 'utf-8').trim();
-    const output = fs.readFileSync('./test/output/domassist.js', 'utf-8').trim();
-    const outputMap = fs.readFileSync('./test/output/domassist.js', 'utf-8').trim();
+  const expected = fs.readFileSync('./test/expected/domassist.js', 'utf-8').trim();
+  const output = fs.readFileSync('./test/output/domassist.js', 'utf-8').trim();
+  const outputMap = fs.readFileSync('./test/output/domassist.js.map', 'utf-8').trim();
+  const expectedMap = fs.readFileSync('./test/expected/domassist.js.map', 'utf-8').trim();
 
-    t.equal(output, expected, 'output matches expected');
-    t.equal(outputMap, expectedMap, 'output map matches expected');
-  });
+  t.equal(output, expected, 'output matches expected');
+  t.equal(outputMap, expectedMap, 'output map matches expected');
 });
 
-tap.test('map file disabled', (t) => {
+tap.test('map file disabled', async (t) => {
   t.plan(2);
 
   const rollup = new TaskkitRollup('rollup', {
@@ -58,13 +54,7 @@ tap.test('map file disabled', (t) => {
 
   clean();
 
-  rollup.execute((err, results) => {
-    if (err) {
-      throw err;
-    }
-
-    t.equal(fs.existsSync('./test/output/domassist.js'), true, 'output exists');
-    t.equal(fs.existsSync('./test/output/domassist.js.map'), false, 'map wasn\'t created');
-  });
+  await rollup.execute();
+  t.equal(fs.existsSync('./test/output/domassist.js'), true, 'output exists');
+  t.equal(fs.existsSync('./test/output/domassist.js.map'), false, 'map wasn\'t created');
 });
-
