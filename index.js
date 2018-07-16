@@ -11,7 +11,9 @@ const es2015 = require('babel-preset-env');
 const babelHelpers = require('babel-plugin-external-helpers');
 const path = require('path');
 const fs = require('fs');
-
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
 class RollupTask extends TaskKitTask {
   get description() {
     return 'Compiles your various client-executable files into a minified, source-mapped, browser-compatible js file that you can embed in a webpage';
@@ -78,7 +80,7 @@ class RollupTask extends TaskKitTask {
       plugins.push(uglify());
     }
     if (this.options.cache && fs.existsSync(cacheName)) {
-      this.cache = JSON.parse(fs.readFileSync(cacheName));
+      this.cache = JSON.parse(await readFile(cacheName));
     }
     const bundle = await rollup({
       input,
@@ -88,7 +90,7 @@ class RollupTask extends TaskKitTask {
     });
     this.cache = bundle;
     if (this.options.cache) {
-      fs.writeFileSync(cacheName, JSON.stringify(this.cache));
+      await writeFile(cacheName, JSON.stringify(this.cache));
     }
     const result = await bundle.generate(this.options.rollup.bundle);
     if (!result) {
