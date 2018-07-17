@@ -10,6 +10,12 @@ const uglify = require('rollup-plugin-uglify');
 const es2015 = require('babel-preset-env');
 const babelHelpers = require('babel-plugin-external-helpers');
 const path = require('path');
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const exists = util.promisify(fs.exists);
+const mkdir = util.promisify(fs.mkdir);
 
 class RollupTask extends TaskKitTask {
   get description() {
@@ -49,7 +55,8 @@ class RollupTask extends TaskKitTask {
     };
   }
 
-  process(input, filename, done) {
+  async process(input, filename) {
+    const cacheName = `./rollup-cache/${path.basename(filename)}.rollup-cache`;
     this.options.rollup.bundle.sourcemap = this.options.sourcemap;
     const babelPresets = [
       [es2015, { modules: false }]
@@ -72,37 +79,37 @@ class RollupTask extends TaskKitTask {
       presets: babelPresets,
       babelrc: false
     }));
-
     if (this.options.minify) {
       plugins.push(uglify());
     }
-    rollup({
+    if (this.options.cache && await exists(cacheName)) {
+      this.cache = JSON.parse(await readFile(cacheName));
+    }
+    const bundle = await rollup({
       input,
       plugins,
       external: this.options.rollup.external,
       cache: this.cache
-    }).then(bundle => {
-      this.cache = bundle;
-      bundle.generate(this.options.rollup.bundle)
-        .then((result) => {
-          if (!result) {
-            return done(new Error(`${input} resulted in an empty bundle`));
-          }
-          if (!this.options.sourcemap) {
-            return this.write(filename, result.code, done);
-          }
-          //write sourcemap
-          this.write(`${filename}.map`, result.map.toString(), (err) => {
-            if (err) {
-              return done(err);
-            }
-            const basename = path.basename(filename);
-            this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`, done);
-          });
-        });
-    }).catch(err => {
-      done(err);
     });
+    this.cache = bundle;
+    if (this.options.cache) {
+      // make the caching dir if it does not exist:
+      if (!await exists('./rollup-cache')) {
+        await (mkdir('./rollup-cache'));
+      }
+      await writeFile(cacheName, JSON.stringify(this.cache));
+    }
+    const result = await bundle.generate(this.options.rollup.bundle);
+    if (!result) {
+      throw new Error(`${input} resulted in an empty bundle`);
+    }
+    if (!this.options.sourcemap) {
+      return this.write(filename, result.code);
+    }
+    //write sourcemap
+    await this.write(`${filename}.map`, result.map.toString());
+    const basename = path.basename(filename);
+    await this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`);
   }
 }
 module.exports = RollupTask;
