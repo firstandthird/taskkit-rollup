@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const tap = require('tap');
 const TaskkitRollup = require('../');
 const fs = require('fs');

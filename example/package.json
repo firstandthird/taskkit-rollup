@@ -3,12 +3,12 @@
     "start": "taskkit"
   },
   "devDependencies": {
-    "codemirror": "^5.24.2",
-    "domassist": "^1.3.3",
-    "domodule": "^5.1.1",
-    "@firstandthird/complete": "^1.0.0-beta.3"
+    "@firstandthird/complete": "^1.0.0-beta.3",
+    "codemirror": "^5.39.2",
+    "domassist": "^1.10.0",
+    "domodule": "^5.1.3"
   },
   "dependencies": {
-    "taskkit": "^2.0.3"
+    "taskkit": "^2.1.0"
   }
 }
