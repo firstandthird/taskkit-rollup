@@ -1,16 +1,6 @@
 var app = (function () {
   'use strict';
 
-  function findOne(selector, el) {
-    var found = find(selector, el);
-
-    if (found.length) {
-      return found[0];
-    }
-
-    return null;
-  }
-
   function isWindow(obj) {
     return obj != null && obj === obj.window;
   }
@@ -23,7 +13,7 @@ var app = (function () {
     } else if (selector instanceof NodeList) {
       return [].slice.call(selector);
     } else if (typeof selector === 'string') {
-      var startElement = context ? findOne(context) : document;
+      var startElement = context ? find(context)[0] : document;
       return [].slice.call(startElement.querySelectorAll(selector));
     }
     return [];
@@ -102,6 +92,16 @@ var app = (function () {
     }, capture);
   }
 
+  function findOne(selector, el) {
+    var found = find(selector, el);
+
+    if (found.length) {
+      return found[0];
+    }
+
+    return null;
+  }
+
   var NativeCustomEvent = window.CustomEvent;
 
   //
@@ -136,15 +136,22 @@ var app = (function () {
 
   var DomassistCustomEvent = canIuseNativeCustom() ? NativeCustomEvent : IECustomEvent;
 
-  function fire(selector, type, params) {
+  function fire(selector, type) {
+    var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
     if (Array.isArray(selector)) {
       return selector.forEach(function (item) {
         return fire(item, type, params);
       });
     }
+
     var els = find(selector);
 
     if (els.length) {
+      if (params.bubbles !== false) {
+        params.bubbles = true;
+      }
+
       els.forEach(function (el) {
         var event = new DomassistCustomEvent(type, params);
         el.dispatchEvent(event);
