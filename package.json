@@ -1,6 +1,6 @@
 {
   "name": "taskkit-rollup",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "TaskKit for Rollup",
   "main": "index.js",
   "scripts": {
