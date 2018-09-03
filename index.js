@@ -15,7 +15,7 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 const exists = util.promisify(fs.exists);
-const mkdir = util.promisify(fs.mkdir);
+const mkdirp = require('mkdirp');
 
 class RollupTask extends TaskKitTask {
   get description() {
@@ -94,9 +94,7 @@ class RollupTask extends TaskKitTask {
     this.cache = bundle;
     if (this.options.cache) {
       // make the caching dir if it does not exist:
-      if (!await exists('./rollup-cache')) {
-        await (mkdir('./rollup-cache'));
-      }
+      mkdirp.sync('./rollup-cache');
       await writeFile(cacheName, JSON.stringify(this.cache));
     }
     const result = await bundle.generate(this.options.rollup.bundle);
