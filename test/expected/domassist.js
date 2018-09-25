@@ -321,7 +321,7 @@ var app = (function () {
   }
 
   function closest(el, selector) {
-    var parent = el.parentElement;
+    var parent = el.tagName.toLowerCase() === 'svg' ? el.parentNode : el.parentElement;
     while (parent.parentElement && !matches(parent, selector)) {
       parent = parent.parentElement;
     }

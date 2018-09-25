@@ -79,9 +79,13 @@ class RollupTask extends TaskKitTask {
       presets: babelPresets,
       babelrc: false
     }));
+
     if (this.options.minify) {
-      plugins.push(uglify());
+      plugins.push(uglify({
+        sourcemap: this.options.sourcemap
+      }));
     }
+
     if (this.options.cache && await exists(cacheName)) {
       this.cache = JSON.parse(await readFile(cacheName));
     }
@@ -92,12 +96,15 @@ class RollupTask extends TaskKitTask {
       cache: this.cache
     });
     this.cache = bundle;
+
     if (this.options.cache) {
       // make the caching dir if it does not exist:
       mkdirp.sync('./rollup-cache');
       await writeFile(cacheName, JSON.stringify(this.cache));
     }
+
     const result = await bundle.generate(this.options.rollup.bundle);
+
     if (!result) {
       throw new Error(`${input} resulted in an empty bundle`);
     }

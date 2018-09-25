@@ -2,6 +2,7 @@
 const tap = require('tap');
 const TaskkitRollup = require('../');
 const fs = require('fs');
+const validate = require('sourcemap-validator');
 
 const clean = () => {
   try {
@@ -22,7 +23,7 @@ tap.test('setup', (t) => {
 });
 
 tap.test('process', async(t) => {
-  t.plan(2);
+  t.plan(3);
 
   const rollup = new TaskkitRollup('rollup', {
     files: {
@@ -41,6 +42,9 @@ tap.test('process', async(t) => {
 
   t.equal(output, expected, 'output matches expected');
   t.equal(outputMap, expectedMap, 'output map matches expected');
+  t.doesNotThrow(() => {
+    validate(output, outputMap);
+  }, 'map is valid');
 });
 
 tap.test('map file disabled', async (t) => {
