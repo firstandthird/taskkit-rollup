@@ -69,7 +69,7 @@ tap.test('can store and read from file cache', async(t) => {
   if (fs.existsSync(cachePath)) {
     fs.unlinkSync(cachePath);
   }
-  let rollup = new TaskkitRollup('rollup', {
+  const rollup = new TaskkitRollup('rollup', {
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     },
@@ -82,14 +82,6 @@ tap.test('can store and read from file cache', async(t) => {
   const start = new Date().getTime();
   await rollup.execute();
   const end1 = new Date().getTime();
-
-  // make a new object that uses the same cache:
-  rollup = new TaskkitRollup('rollup', {
-    files: {
-      './test/output/domassist.js': './test/input/domassist.js'
-    },
-    cache: true
-  });
 
   await rollup.execute();
   const end2 = new Date().getTime();
