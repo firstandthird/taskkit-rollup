@@ -97,17 +97,14 @@ class RollupTask extends TaskKitTask {
       cache: this.cache
     });
     this.cache = bundle;
-
+    const result = await bundle.generate(this.options.rollup.bundle);
+    if (!result) {
+      throw new Error(`${input} resulted in an empty bundle`);
+    }
     if (this.options.cache) {
       // make the caching dir if it does not exist:
       mkdirp.sync('./rollup-cache');
       await writeFile(cacheName, JSON.stringify(this.cache));
-    }
-
-    const result = await bundle.generate(this.options.rollup.bundle);
-
-    if (!result) {
-      throw new Error(`${input} resulted in an empty bundle`);
     }
     if (!this.options.sourcemap) {
       return this.write(filename, result.code);

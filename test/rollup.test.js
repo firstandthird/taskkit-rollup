@@ -91,3 +91,26 @@ tap.test('can store and read from file cache', async(t) => {
   t.ok(end1 - start > end2 - end1, 'executes faster when using an existing cache');
   t.end();
 });
+
+tap.test('will not cache if there is an error', async(t) => {
+  const cachePath = './rollup-cache/broke.js.rollup-cache';
+  if (fs.existsSync(cachePath)) {
+    fs.unlinkSync(cachePath);
+  }
+  const rollup = new TaskkitRollup('rollup', {
+    files: {
+      './test/output/broke.js': './test/input/broke.js'
+    },
+    cache: true
+  });
+
+  clean();
+
+  try {
+    await rollup.execute();
+  } catch (e) {
+    console.log(e);
+  }
+  t.notOk(fs.existsSync(cachePath));
+  t.end();
+});
