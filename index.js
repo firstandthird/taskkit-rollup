@@ -42,6 +42,10 @@ class RollupTask extends TaskKitTask {
         main: true,
         browser: true
       },
+      formats: {
+        esm: true,
+        cjs: false
+      },
       commonjs: {
         enabled: true
       },
@@ -56,7 +60,6 @@ class RollupTask extends TaskKitTask {
 
   async process(input, filename) {
     const cacheName = `./rollup-cache/${path.basename(filename)}.rollup-cache`;
-    this.options.rollup.bundle.sourcemap = this.options.sourcemap;
 
     const plugins = [
       nodeResolve(this.options.nodeResolve)
@@ -97,22 +100,28 @@ class RollupTask extends TaskKitTask {
       cache: this.cache
     });
     this.cache = bundle;
-    const result = await bundle.generate(this.options.rollup.bundle);
-    if (!result) {
-      throw new Error(`${input} resulted in an empty bundle`);
+
+    await bundle.write({
+      file: filename,
+      format: this.options.formats.cjs ? 'cjs' : 'iife',
+      name: 'app',
+      sourcemap: this.options.sourcemap
+    });
+
+    if (this.options.formats.esm) {
+      await bundle.write({
+        file: `${filename.replace('.js', '.esm.js')}`,
+        format: 'esm',
+        name: 'app',
+        sourcemap: this.options.sourcemap
+      });
     }
+
     if (this.options.cache) {
       // make the caching dir if it does not exist:
       mkdirp.sync('./rollup-cache');
       await writeFile(cacheName, JSON.stringify(this.cache));
     }
-    if (!this.options.sourcemap) {
-      return this.write(filename, result.code);
-    }
-    //write sourcemap
-    await this.write(`${filename}.map`, result.map.toString());
-    const basename = path.basename(filename);
-    await this.write(filename, `${result.code}\n//# sourceMappingURL=${basename}.map`);
   }
 }
 module.exports = RollupTask;

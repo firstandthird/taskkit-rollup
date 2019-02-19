@@ -8,7 +8,9 @@ const clean = () => {
   try {
     fs.unlinkSync('./test/output/domassist.js');
     fs.unlinkSync('./test/output/domassist.js.map');
-  } catch (e) {
+    fs.unlinkSync('./test/output/domassist.esm.js');
+    fs.unlinkSync('./test/output/domassist.esm.js.map');
+  } catch (error) {
     // Fail silently
   }
 };
@@ -23,7 +25,7 @@ tap.test('setup', (t) => {
 });
 
 tap.test('process', async(t) => {
-  t.plan(3);
+  t.plan(6);
 
   const rollup = new TaskkitRollup('rollup', {
     files: {
@@ -40,15 +42,79 @@ tap.test('process', async(t) => {
   const outputMap = fs.readFileSync('./test/output/domassist.js.map', 'utf-8').trim();
   const expectedMap = fs.readFileSync('./test/expected/domassist.js.map', 'utf-8').trim();
 
+  // ESM files
+  const expectedEsm = fs.readFileSync('./test/expected/domassist.esm.js', 'utf-8').trim();
+  const outputEsm = fs.readFileSync('./test/output/domassist.esm.js', 'utf-8').trim();
+  const expectedEsmMap = fs.readFileSync('./test/expected/domassist.esm.js.map', 'utf-8').trim();
+  const outputEsmMap = fs.readFileSync('./test/output/domassist.esm.js.map', 'utf-8').trim();
+
   t.equal(output, expected, 'output matches expected');
   t.equal(outputMap, expectedMap, 'output map matches expected');
+  t.equal(outputEsm, expectedEsm, 'output ESM matches expected');
+  t.equal(outputEsmMap, expectedEsmMap, 'output ESM map matches expected');
+
   t.doesNotThrow(() => {
     validate(output, outputMap);
   }, 'map is valid');
+
+  t.doesNotThrow(() => {
+    validate(outputEsm, outputEsmMap);
+  }, 'ESM map is valid');
+  t.end();
+});
+
+tap.test('cjs build enabled', async (t) => {
+  t.plan(4);
+
+  const rollup = new TaskkitRollup('rollup', {
+    sourcemap: true,
+    files: {
+      './test/output/domassist.js': './test/input/domassist.js'
+    },
+    formats: {
+      cjs: true
+    }
+  });
+
+  clean();
+
+  await rollup.execute();
+
+  const expected = fs.readFileSync('./test/expected/domassist.cjs.js', 'utf-8').trim();
+  const output = fs.readFileSync('./test/output/domassist.js', 'utf-8').trim();
+  const outputMap = fs.readFileSync('./test/output/domassist.js.map', 'utf-8').trim();
+  const expectedMap = fs.readFileSync('./test/expected/domassist.cjs.js.map', 'utf-8').trim();
+
+  t.equal(fs.existsSync('./test/output/domassist.js'), true, 'output exists');
+  t.equal(output, expected, 'output cjs matches expected');
+  t.equal(outputMap, expectedMap, 'output cjs map matches expected');
+  t.doesNotThrow(() => {
+    validate(output, outputMap);
+  }, 'cjs map is valid');
+});
+
+tap.test('esm build disabled', async(t) => {
+  t.plan(2);
+
+  const rollup = new TaskkitRollup('rollup', {
+    sourcemap: false,
+    files: {
+      './test/output/domassist.js': './test/input/domassist.js'
+    },
+    formats: {
+      esm: false
+    }
+  });
+
+  clean();
+
+  await rollup.execute();
+  t.equal(fs.existsSync('./test/output/domassist.js'), true, 'output exists');
+  t.equal(fs.existsSync('./test/output/domassist.esm.js'), false, 'ESM wasn\'t created');
 });
 
 tap.test('map file disabled', async (t) => {
-  t.plan(2);
+  t.plan(4);
 
   const rollup = new TaskkitRollup('rollup', {
     sourcemap: false,
@@ -61,7 +127,9 @@ tap.test('map file disabled', async (t) => {
 
   await rollup.execute();
   t.equal(fs.existsSync('./test/output/domassist.js'), true, 'output exists');
+  t.equal(fs.existsSync('./test/output/domassist.esm.js'), true, 'output esm exists');
   t.equal(fs.existsSync('./test/output/domassist.js.map'), false, 'map wasn\'t created');
+  t.equal(fs.existsSync('./test/output/domassist.esm.js.map'), false, 'ESM map wasn\'t created');
 });
 
 tap.test('can store and read from file cache', async(t) => {
@@ -109,7 +177,7 @@ tap.test('will not cache if there is an error', async(t) => {
   try {
     await rollup.execute();
   } catch (e) {
-    console.log(e);
+    //
   }
   t.notOk(fs.existsSync(cachePath));
   t.end();

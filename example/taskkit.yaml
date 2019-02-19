@@ -8,6 +8,9 @@ scripts:
   rollup:
     external:
       - 'codemirror'
+  formats:
+    esm: true
+    cjs: false
   commonjs:
     enabled: true
   files:
