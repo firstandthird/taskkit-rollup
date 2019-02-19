@@ -177,7 +177,7 @@ tap.test('will not cache if there is an error', async(t) => {
   try {
     await rollup.execute();
   } catch (e) {
-    console.log(e);
+    //
   }
   t.notOk(fs.existsSync(cachePath));
   t.end();
