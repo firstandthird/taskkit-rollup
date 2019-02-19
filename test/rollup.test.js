@@ -71,8 +71,8 @@ tap.test('cjs build enabled', async (t) => {
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     },
-    cjs: {
-      enabled: true
+    formats: {
+      cjs: true
     }
   });
 
@@ -101,8 +101,8 @@ tap.test('esm build disabled', async(t) => {
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     },
-    esm: {
-      enabled: false
+    formats: {
+      esm: false
     }
   });
 
