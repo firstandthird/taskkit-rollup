@@ -42,8 +42,11 @@ class RollupTask extends TaskKitTask {
         main: true,
         browser: true
       },
-      umd: {
-        enabled: true
+      esm: {
+        enabled: true,
+      },
+      cjs: {
+        enabled: false
       },
       commonjs: {
         enabled: true
@@ -102,15 +105,15 @@ class RollupTask extends TaskKitTask {
 
     await bundle.write({
       file: filename,
-      format: 'iife',
+      format: this.options.cjs.enabled ? 'cjs' : 'iife',
       name: 'app',
       sourcemap: this.options.sourcemap
     });
 
-    if (this.options.umd.enabled) {
+    if (this.options.esm.enabled) {
       await bundle.write({
-        file: `${filename.replace('.js', '.umd.js')}`,
-        format: 'umd',
+        file: `${filename.replace('.js', '.esm.js')}`,
+        format: 'esm',
         name: 'app',
         sourcemap: this.options.sourcemap
       });

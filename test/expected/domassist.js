@@ -259,30 +259,6 @@ var app = (function () {
 
   var DomassistCustomEvent = canIuseNativeCustom() ? NativeCustomEvent : IECustomEvent;
 
-  function fire(selector, type) {
-    var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-    if (Array.isArray(selector)) {
-      return selector.forEach(function (item) {
-        return fire(item, type, params);
-      });
-    }
-
-    var els = find(selector);
-
-    if (els.length) {
-      if (params.bubbles !== false) {
-        params.bubbles = true;
-      }
-
-      els.forEach(function (el) {
-        var event = new DomassistCustomEvent(type, params);
-        el.dispatchEvent(event);
-      });
-      return els;
-    }
-  }
-
   var SCROLLABLE_CONTAINER;
 
   function getScrollableContainer() {
@@ -463,12 +439,12 @@ var app = (function () {
       }
     }, {
       key: "find",
-      value: function find$$1(selector) {
+      value: function find(selector) {
         return DOMAssist.find(selector, this.el);
       }
     }, {
       key: "findOne",
-      value: function findOne$$1(selector) {
+      value: function findOne(selector) {
         return DOMAssist.findOne(selector, this.el);
       }
     }, {
@@ -624,6 +600,137 @@ var app = (function () {
     }
   });
 
+  function isWindow$1(obj) {
+    return obj != null && obj === obj.window;
+  }
+
+  function find$1(selector) {
+    var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+    if (selector instanceof HTMLElement || selector instanceof Node || isWindow$1(selector)) {
+      return [selector];
+    } else if (selector instanceof NodeList) {
+      return [].slice.call(selector);
+    } else if (typeof selector === 'string') {
+      var startElement = context ? find$1(context)[0] : document;
+      return [].slice.call(startElement.querySelectorAll(selector));
+    }
+
+    return [];
+  }
+
+  function on$1(selector, event, cb) {
+    var capture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
+    if (Array.isArray(selector)) {
+      selector.forEach(function (item) {
+        return on$1(item, event, cb, capture);
+      });
+      return;
+    }
+
+    var data = {
+      cb: cb,
+      capture: capture
+    };
+
+    if (!window._domassistevents) {
+      window._domassistevents = {};
+    }
+
+    window._domassistevents["_".concat(event)] = data;
+    var el = find$1(selector);
+
+    if (el.length) {
+      el.forEach(function (item) {
+        item.addEventListener(event, cb, capture);
+      });
+    }
+  }
+
+  var NativeCustomEvent$1 = window.CustomEvent; //
+  // Check for the usage of native support for CustomEvents which is lacking
+  // completely on IE.
+  //
+
+  function canIuseNativeCustom$1() {
+    try {
+      var p = new NativeCustomEvent$1('t', {
+        detail: {
+          a: 'b'
+        }
+      });
+      return p.type === 't' && p.detail.a === 'b';
+    } catch (e) {
+      return false;
+    }
+  } // Lousy polyfill for the Custom Event constructor for IE.
+
+
+  var IECustomEvent$1 = function CustomEvent(type, params) {
+    var e = document.createEvent('CustomEvent');
+
+    if (params) {
+      e.initCustomEvent(type, params.bubbles, params.cancelable, params.detail);
+    } else {
+      e.initCustomEvent(type, false, false, undefined);
+    }
+
+    return e;
+  };
+
+  var DomassistCustomEvent$1 = canIuseNativeCustom$1() ? NativeCustomEvent$1 : IECustomEvent$1;
+
+  function fire(selector, type) {
+    var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+    if (Array.isArray(selector)) {
+      return selector.forEach(function (item) {
+        return fire(item, type, params);
+      });
+    }
+
+    var els = find$1(selector);
+
+    if (els.length) {
+      if (params.bubbles !== false) {
+        params.bubbles = true;
+      }
+
+      els.forEach(function (el) {
+        var event = new DomassistCustomEvent$1(type, params);
+        el.dispatchEvent(event);
+      });
+      return els;
+    }
+  }
+
+  var SCROLLABLE_CONTAINER$1;
+
+  function getScrollableContainer$1() {
+    if (SCROLLABLE_CONTAINER$1) {
+      return SCROLLABLE_CONTAINER$1;
+    }
+
+    var documentElement = window.document.documentElement;
+    var scrollableContainer;
+    documentElement.scrollTop = 1;
+
+    if (documentElement.scrollTop === 1) {
+      documentElement.scrollTop = 0;
+      scrollableContainer = documentElement;
+    } else {
+      scrollableContainer = document.body;
+    }
+
+    SCROLLABLE_CONTAINER$1 = scrollableContainer;
+    return scrollableContainer;
+  }
+
+  SCROLLABLE_CONTAINER$1 = getScrollableContainer$1();
+
+  /* global DocumentTouch */
+
   var Reload =
   /*#__PURE__*/
   function (_Domodule) {
@@ -638,7 +745,7 @@ var app = (function () {
     _createClass(Reload, [{
       key: "postInit",
       value: function postInit() {
-        on(this.el, 'click', this.onClick.bind(this));
+        on$1(this.el, 'click', this.onClick.bind(this));
       }
     }, {
       key: "onClick",
@@ -667,7 +774,7 @@ var app = (function () {
     _createClass(Test, [{
       key: "type",
       value: function type() {
-        console.log(_typeof(find));
+        console.log(_typeof(find$1));
       }
     }]);
 

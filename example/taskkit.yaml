@@ -8,8 +8,10 @@ scripts:
   rollup:
     external:
       - 'codemirror'
-  umd:
+  esm:
     enabled: true
+  cjs:
+    enabled: false
   commonjs:
     enabled: true
   files:
