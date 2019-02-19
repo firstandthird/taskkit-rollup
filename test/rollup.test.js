@@ -101,8 +101,8 @@ tap.test('esm build disabled', async(t) => {
     files: {
       './test/output/domassist.js': './test/input/domassist.js'
     },
-    export: {
-      esm: false
+    esm: {
+      enabled: false
     }
   });
 
