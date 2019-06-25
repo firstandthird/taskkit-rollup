@@ -1,25 +1,5 @@
 'use strict';
 
-function _typeof(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof = function (obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof = function (obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof(obj);
-}
-
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
     var descriptor = props[i];
@@ -36,51 +16,10 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor;
 }
 
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
-
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
-
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-
-  return _setPrototypeOf(o, p);
-}
-
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-
-  return self;
-}
-
-function _possibleConstructorReturn(self, call) {
-  if (call && (typeof call === "object" || typeof call === "function")) {
-    return call;
-  }
-
-  return _assertThisInitialized(self);
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+  subClass.__proto__ = superClass;
 }
 
 function findParent(elem) {
@@ -102,7 +41,7 @@ function findParent(elem) {
 function attrObj (key, el) {
   var values = {};
   Object.keys(el.dataset).forEach(function (data) {
-    if (data.match(new RegExp("^".concat(key))) && data !== key) {
+    if (data.match(new RegExp("^" + key)) && data !== key) {
       var optionName = data.replace(key, '');
       var isGlobal = false;
 
@@ -111,7 +50,7 @@ function attrObj (key, el) {
         isGlobal = true;
       }
 
-      optionName = "".concat(optionName[0].toLowerCase()).concat(optionName.slice(1));
+      optionName = "" + optionName[0].toLowerCase() + optionName.slice(1);
 
       if (isGlobal) {
         values[optionName] = window[el.dataset[data]];
@@ -150,8 +89,8 @@ var aug = function aug() {
         continue;
       }
 
-      if (type === 'deep' && _typeof(propValue) === 'object' && typeof org[propName] !== 'undefined') {
-        if (_typeof(org[propName]) !== 'object') {
+      if (type === 'deep' && typeof propValue === 'object' && typeof org[propName] !== 'undefined') {
+        if (typeof org[propName] !== 'object') {
           org[propName] = propValue;
           continue;
         }
@@ -171,8 +110,10 @@ function isWindow(obj) {
   return obj != null && obj === obj.window;
 }
 
-function find(selector) {
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+function find(selector, context) {
+  if (context === void 0) {
+    context = null;
+  }
 
   if (selector instanceof HTMLElement || selector instanceof Node || isWindow(selector)) {
     return [selector];
@@ -186,8 +127,10 @@ function find(selector) {
   return [];
 }
 
-function on(selector, event, cb) {
-  var capture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+function on(selector, event, cb, capture) {
+  if (capture === void 0) {
+    capture = false;
+  }
 
   if (Array.isArray(selector)) {
     selector.forEach(function (item) {
@@ -205,7 +148,7 @@ function on(selector, event, cb) {
     window._domassistevents = {};
   }
 
-  window._domassistevents["_".concat(event)] = data;
+  window._domassistevents["_" + event] = data;
   var el = find(selector);
 
   if (el.length) {
@@ -282,8 +225,6 @@ function getScrollableContainer() {
 
 SCROLLABLE_CONTAINER = getScrollableContainer();
 
-/* global DocumentTouch */
-
 var ACTION_SELECTOR = '[data-action]';
 var DOMAssist = {
   find: find,
@@ -295,8 +236,6 @@ var Domodule =
 /*#__PURE__*/
 function () {
   function Domodule(el) {
-    _classCallCheck(this, Domodule);
-
     this.log('begin setup');
     this.el = el;
     this.els = {};
@@ -323,169 +262,236 @@ function () {
     return this;
   }
 
-  _createClass(Domodule, [{
-    key: "preInit",
-    value: function preInit() {}
-  }, {
-    key: "postInit",
-    value: function postInit() {}
-  }, {
-    key: "verifyRequired",
-    value: function verifyRequired() {
-      var _this = this;
+  var _proto = Domodule.prototype;
 
-      if (this.required === {}) {
-        return this;
-      }
+  _proto.preInit = function preInit() {};
 
-      if (typeof this.required.options !== 'undefined') {
-        this.setUps.options = Object.keys(this.options);
-      }
+  _proto.postInit = function postInit() {};
 
-      Object.keys(this.required).forEach(function (required) {
-        _this.required[required].forEach(function (value) {
-          if (_this.setUps[required].indexOf(value) < 0) {
-            throw new Error("".concat(value, " is required as ").concat(required, " for ").concat(_this.moduleName, ", but is missing!"));
-          }
-        });
-      });
+  _proto.verifyRequired = function verifyRequired() {
+    var _this = this;
+
+    if (this.required === {}) {
       return this;
     }
-  }, {
-    key: "setupActions",
-    value: function setupActions() {
-      var _this2 = this;
 
-      this.setupAction(this.el);
-      this.find(ACTION_SELECTOR).forEach(function (action) {
-        var parent = findParent(action);
+    if (typeof this.required.options !== 'undefined') {
+      this.setUps.options = Object.keys(this.options);
+    }
 
-        if (parent === _this2.el) {
-          _this2.setupAction(action);
+    Object.keys(this.required).forEach(function (required) {
+      _this.required[required].forEach(function (value) {
+        if (_this.setUps[required].indexOf(value) < 0) {
+          throw new Error(value + " is required as " + required + " for " + _this.moduleName + ", but is missing!");
         }
       });
+    });
+    return this;
+  };
+
+  _proto.setupActions = function setupActions() {
+    var _this2 = this;
+
+    this.setupAction(this.el);
+    this.find(ACTION_SELECTOR).forEach(function (action) {
+      var parent = findParent(action);
+
+      if (parent === _this2.el) {
+        _this2.setupAction(action);
+      }
+    });
+  };
+
+  _proto.setupAction = function setupAction(actionEl) {
+    if (actionEl.dataset.domoduleActionProcessed === 'true') {
+      return;
     }
-  }, {
-    key: "setupAction",
-    value: function setupAction(actionEl) {
-      if (actionEl.dataset.domoduleActionProcessed === 'true') {
+
+    var _Domodule$parseAction = Domodule.parseAction(actionEl),
+        actionName = _Domodule$parseAction.name,
+        actionType = _Domodule$parseAction.type;
+
+    if (!actionName) {
+      return;
+    } else if (typeof this[actionName] !== 'function') {
+      this.log(actionName + " was registered, but there is no function set up");
+      return;
+    }
+
+    this.log(actionName + " bound");
+    this.storeSetUp(actionName, 'actions');
+    DOMAssist.on(actionEl, actionType, this.boundActionRouter);
+    actionEl.dataset.domoduleActionProcessed = 'true';
+  };
+
+  _proto.actionRouter = function actionRouter(event) {
+    var actionEl = event.currentTarget;
+
+    var _Domodule$parseAction2 = Domodule.parseAction(actionEl),
+        actionName = _Domodule$parseAction2.name;
+
+    var actionData = attrObj('action', actionEl);
+    this[actionName].call(this, actionEl, event, actionData);
+  };
+
+  _proto.setupNamed = function setupNamed() {
+    var _this3 = this;
+
+    this.find('[data-name]').forEach(function (named) {
+      var parent = findParent(named);
+
+      if (parent !== _this3.el) {
         return;
       }
 
-      var _Domodule$parseAction = Domodule.parseAction(actionEl),
-          actionName = _Domodule$parseAction.name,
-          actionType = _Domodule$parseAction.type;
+      if (!named.dataset.domoduleNameProcessed) {
+        _this3.els[named.dataset.name] = named;
 
-      if (!actionName) {
-        return;
-      } else if (typeof this[actionName] !== 'function') {
-        this.log("".concat(actionName, " was registered, but there is no function set up"));
-        return;
+        _this3.storeSetUp(named.dataset.name, 'named');
+
+        named.dataset.domoduleNameProcessed = 'true';
+        named.dataset.domoduleOwner = _this3.id;
       }
+    });
+  };
 
-      this.log("".concat(actionName, " bound"));
-      this.storeSetUp(actionName, 'actions');
-      DOMAssist.on(actionEl, actionType, this.boundActionRouter);
-      actionEl.dataset.domoduleActionProcessed = 'true';
+  _proto.storeRef = function storeRef() {
+    if (typeof window.domorefs === 'undefined') {
+      window.domorefs = {};
     }
-  }, {
-    key: "actionRouter",
-    value: function actionRouter(event) {
-      var actionEl = event.currentTarget;
 
-      var _Domodule$parseAction2 = Domodule.parseAction(actionEl),
-          actionName = _Domodule$parseAction2.name;
-
-      var actionData = attrObj('action', actionEl);
-      this[actionName].call(this, actionEl, event, actionData);
+    if (typeof window.domorefs[this.el.dataset.moduleUid] !== 'undefined') {
+      return false;
     }
-  }, {
-    key: "setupNamed",
-    value: function setupNamed() {
-      var _this3 = this;
 
-      this.find('[data-name]').forEach(function (named) {
-        var parent = findParent(named);
+    this.id = this.uuid;
+    this.el.dataset.moduleUid = this.id;
+    window.domorefs[this.el.dataset.moduleUid] = this;
+  };
 
-        if (parent !== _this3.el) {
-          return;
-        }
+  _proto.find = function find(selector) {
+    return DOMAssist.find(selector, this.el);
+  };
 
-        if (!named.dataset.domoduleNameProcessed) {
-          _this3.els[named.dataset.name] = named;
+  _proto.findOne = function findOne(selector) {
+    return DOMAssist.findOne(selector, this.el);
+  };
 
-          _this3.storeSetUp(named.dataset.name, 'named');
+  _proto.findByName = function findByName(name) {
+    return this.els[name];
+  };
 
-          named.dataset.domoduleNameProcessed = 'true';
-          named.dataset.domoduleOwner = _this3.id;
+  _proto.getOption = function getOption(option) {
+    return this.options[option];
+  };
+
+  _proto.storeSetUp = function storeSetUp(name, dict) {
+    if (this.setUps[dict].indexOf(name) < 0) {
+      this.setUps[dict].push(name);
+    }
+  };
+
+  _proto.destroy = function destroy() {
+    var _this4 = this;
+
+    DOMAssist.find(ACTION_SELECTOR, this.el.parentNode).forEach(function (el) {
+      if (el.dataset.domoduleActionProcessed === 'true') {
+        var _Domodule$parseAction3 = Domodule.parseAction(el),
+            actionType = _Domodule$parseAction3.type;
+
+        el.removeEventListener(actionType, _this4.boundActionRouter);
+        el.dataset.domoduleActionProcessed = 'false';
+      }
+    });
+  } // static methods can't access `this` so they go last
+  ;
+
+  Domodule.parseAction = function parseAction(el) {
+    var _el$dataset = el.dataset,
+        name = _el$dataset.action,
+        _el$dataset$actionTyp = _el$dataset.actionType,
+        type = _el$dataset$actionTyp === void 0 ? 'click' : _el$dataset$actionTyp;
+    return {
+      name: name,
+      type: type
+    };
+  };
+
+  Domodule.getInstance = function getInstance(element) {
+    if (element instanceof Node) {
+      return window.domorefs[element.dataset.moduleUid];
+    }
+
+    throw new Error('getInstance expects a dom node');
+  };
+
+  Domodule.register = function register(name, cls) {
+    if (typeof name === 'function') {
+      cls = name;
+      name = cls.prototype.constructor.name;
+    }
+
+    if (!window.domodules) {
+      window.domodules = {};
+    }
+
+    Domodule.log("Registering " + name);
+    window.domodules[name] = cls;
+  };
+
+  Domodule.discover = function discover(el) {
+    if (el === void 0) {
+      el = 'body';
+    }
+
+    Domodule.log('Discovering modules...');
+
+    if (!window.domodules) {
+      Domodule.log('No modules found');
+      return;
+    }
+
+    var els;
+
+    if (el instanceof Node) {
+      els = [el];
+    } else if (Array.isArray(el)) {
+      els = el;
+    } else {
+      els = DOMAssist.find(el);
+    }
+
+    var instances = [];
+    els.forEach(function (matched) {
+      var foundModules = DOMAssist.find('[data-module]', matched);
+      foundModules.forEach(function (moduleEl) {
+        var moduleName = moduleEl.dataset.module;
+
+        if (moduleName && typeof window.domodules[moduleName] === 'function') {
+          if (typeof window.domorefs === 'object' && typeof window.domorefs[moduleEl.dataset.moduleUid] !== 'undefined') {
+            return;
+          }
+
+          Domodule.log(moduleName + " found");
+          instances.push(new window.domodules[moduleName](moduleEl));
         }
       });
-    }
-  }, {
-    key: "storeRef",
-    value: function storeRef() {
-      if (typeof window.domorefs === 'undefined') {
-        window.domorefs = {};
-      }
+    });
+    return instances;
+  } //used inside instance
+  ;
 
-      if (typeof window.domorefs[this.el.dataset.moduleUid] !== 'undefined') {
-        return false;
-      }
+  _proto.log = function log(msg) {
+    Domodule.log(this.constructor.name + ": " + msg);
+  };
 
-      this.id = this.uuid;
-      this.el.dataset.moduleUid = this.id;
-      window.domorefs[this.el.dataset.moduleUid] = this;
+  Domodule.log = function log(msg) {
+    if (Domodule.debug) {
+      console.log("[DOMODULE] " + msg); //eslint-disable-line no-console
     }
-  }, {
-    key: "find",
-    value: function find(selector) {
-      return DOMAssist.find(selector, this.el);
-    }
-  }, {
-    key: "findOne",
-    value: function findOne(selector) {
-      return DOMAssist.findOne(selector, this.el);
-    }
-  }, {
-    key: "findByName",
-    value: function findByName(name) {
-      return this.els[name];
-    }
-  }, {
-    key: "getOption",
-    value: function getOption(option) {
-      return this.options[option];
-    }
-  }, {
-    key: "storeSetUp",
-    value: function storeSetUp(name, dict) {
-      if (this.setUps[dict].indexOf(name) < 0) {
-        this.setUps[dict].push(name);
-      }
-    }
-  }, {
-    key: "destroy",
-    value: function destroy() {
-      var _this4 = this;
+  };
 
-      DOMAssist.find(ACTION_SELECTOR, this.el.parentNode).forEach(function (el) {
-        if (el.dataset.domoduleActionProcessed === 'true') {
-          var _Domodule$parseAction3 = Domodule.parseAction(el),
-              actionType = _Domodule$parseAction3.type;
-
-          el.removeEventListener(actionType, _this4.boundActionRouter);
-          el.dataset.domoduleActionProcessed = 'false';
-        }
-      });
-    } // static methods can't access `this` so they go last
-
-  }, {
-    key: "log",
-    //used inside instance
-    value: function log(msg) {
-      Domodule.log("".concat(this.constructor.name, ": ").concat(msg));
-    }
-  }, {
+  _createClass(Domodule, [{
     key: "required",
     get: function get() {
       return {};
@@ -504,94 +510,12 @@ function () {
         return v.toString(16);
       });
     }
-  }], [{
-    key: "parseAction",
-    value: function parseAction(el) {
-      var _el$dataset = el.dataset,
-          name = _el$dataset.action,
-          _el$dataset$actionTyp = _el$dataset.actionType,
-          type = _el$dataset$actionTyp === void 0 ? 'click' : _el$dataset$actionTyp;
-      return {
-        name: name,
-        type: type
-      };
-    }
-  }, {
-    key: "getInstance",
-    value: function getInstance(element) {
-      if (element instanceof Node) {
-        return window.domorefs[element.dataset.moduleUid];
-      }
-
-      throw new Error('getInstance expects a dom node');
-    }
-  }, {
-    key: "register",
-    value: function register(name, cls) {
-      if (typeof name === 'function') {
-        cls = name;
-        name = cls.prototype.constructor.name;
-      }
-
-      if (!window.domodules) {
-        window.domodules = {};
-      }
-
-      Domodule.log("Registering ".concat(name));
-      window.domodules[name] = cls;
-    }
-  }, {
-    key: "discover",
-    value: function discover() {
-      var el = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
-      Domodule.log('Discovering modules...');
-
-      if (!window.domodules) {
-        Domodule.log('No modules found');
-        return;
-      }
-
-      var els;
-
-      if (el instanceof Node) {
-        els = [el];
-      } else if (Array.isArray(el)) {
-        els = el;
-      } else {
-        els = DOMAssist.find(el);
-      }
-
-      var instances = [];
-      els.forEach(function (matched) {
-        var foundModules = DOMAssist.find('[data-module]', matched);
-        foundModules.forEach(function (moduleEl) {
-          var moduleName = moduleEl.dataset.module;
-
-          if (moduleName && typeof window.domodules[moduleName] === 'function') {
-            if (_typeof(window.domorefs) === 'object' && typeof window.domorefs[moduleEl.dataset.moduleUid] !== 'undefined') {
-              return;
-            }
-
-            Domodule.log("".concat(moduleName, " found"));
-            instances.push(new window.domodules[moduleName](moduleEl));
-          }
-        });
-      });
-      return instances;
-    }
-  }, {
-    key: "log",
-    value: function log(msg) {
-      if (Domodule.debug) {
-        console.log("[DOMODULE] ".concat(msg)); //eslint-disable-line no-console
-      }
-    }
   }]);
 
   return Domodule;
 }();
 
-Domodule.debug = _typeof(window.localStorage) === 'object' && window.localStorage.getItem('DomoduleDebug');
+Domodule.debug = typeof window.localStorage === 'object' && window.localStorage.getItem('DomoduleDebug');
 Domodule.autoDiscover = true;
 window.addEventListener('DOMContentLoaded', function () {
   if (Domodule.autoDiscover) {
@@ -603,8 +527,10 @@ function isWindow$1(obj) {
   return obj != null && obj === obj.window;
 }
 
-function find$1(selector) {
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+function find$1(selector, context) {
+  if (context === void 0) {
+    context = null;
+  }
 
   if (selector instanceof HTMLElement || selector instanceof Node || isWindow$1(selector)) {
     return [selector];
@@ -618,8 +544,10 @@ function find$1(selector) {
   return [];
 }
 
-function on$1(selector, event, cb) {
-  var capture = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+function on$1(selector, event, cb, capture) {
+  if (capture === void 0) {
+    capture = false;
+  }
 
   if (Array.isArray(selector)) {
     selector.forEach(function (item) {
@@ -637,7 +565,7 @@ function on$1(selector, event, cb) {
     window._domassistevents = {};
   }
 
-  window._domassistevents["_".concat(event)] = data;
+  window._domassistevents["_" + event] = data;
   var el = find$1(selector);
 
   if (el.length) {
@@ -680,8 +608,10 @@ var IECustomEvent$1 = function CustomEvent(type, params) {
 
 var DomassistCustomEvent$1 = canIuseNativeCustom$1() ? NativeCustomEvent$1 : IECustomEvent$1;
 
-function fire(selector, type) {
-  var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+function fire(selector, type, params) {
+  if (params === void 0) {
+    params = {};
+  }
 
   if (Array.isArray(selector)) {
     return selector.forEach(function (item) {
@@ -728,33 +658,27 @@ function getScrollableContainer$1() {
 
 SCROLLABLE_CONTAINER$1 = getScrollableContainer$1();
 
-/* global DocumentTouch */
-
 var Reload =
 /*#__PURE__*/
 function (_Domodule) {
-  _inherits(Reload, _Domodule);
+  _inheritsLoose(Reload, _Domodule);
 
   function Reload() {
-    _classCallCheck(this, Reload);
-
-    return _possibleConstructorReturn(this, _getPrototypeOf(Reload).apply(this, arguments));
+    return _Domodule.apply(this, arguments) || this;
   }
 
-  _createClass(Reload, [{
-    key: "postInit",
-    value: function postInit() {
-      on$1(this.el, 'click', this.onClick.bind(this));
-    }
-  }, {
-    key: "onClick",
-    value: function onClick(event) {
-      event.preventDefault();
-      fire(this.el, 'tessst', {
-        bubbles: true
-      });
-    }
-  }]);
+  var _proto = Reload.prototype;
+
+  _proto.postInit = function postInit() {
+    on$1(this.el, 'click', this.onClick.bind(this));
+  };
+
+  _proto.onClick = function onClick(event) {
+    event.preventDefault();
+    fire(this.el, 'tessst', {
+      bubbles: true
+    });
+  };
 
   return Reload;
 }(Domodule);
@@ -765,17 +689,14 @@ var Test =
 /*#__PURE__*/
 function () {
   function Test() {
-    _classCallCheck(this, Test);
-
     console.log('test');
   }
 
-  _createClass(Test, [{
-    key: "type",
-    value: function type() {
-      console.log(_typeof(find$1));
-    }
-  }]);
+  var _proto2 = Test.prototype;
+
+  _proto2.type = function type() {
+    console.log(typeof find$1);
+  };
 
   return Test;
 }();
@@ -783,27 +704,27 @@ function () {
 var Do =
 /*#__PURE__*/
 function (_Test) {
-  _inherits(Do, _Test);
+  _inheritsLoose(Do, _Test);
 
   function Do() {
     var _this;
 
-    _classCallCheck(this, Do);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(Do).call(this));
+    _this = _Test.call(this) || this;
 
     _this.echo();
 
     return _this;
   }
 
-  _createClass(Do, [{
-    key: "echo",
-    value: function echo() {
-      var message = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'something';
-      console.log(message);
+  var _proto3 = Do.prototype;
+
+  _proto3.echo = function echo(message) {
+    if (message === void 0) {
+      message = 'something';
     }
-  }]);
+
+    console.log(message);
+  };
 
   return Do;
 }(Test);
@@ -833,4 +754,4 @@ function foo() {
 console.log(foo(matrix, Test));
 
 module.exports = Do;
-//# sourceMappingURL=domassist.js.map
+//# sourceMappingURL=domassist.cjs.js.map
