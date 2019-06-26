@@ -31,6 +31,7 @@
     "@babel/preset-env": "^7.4.5",
     "mkdirp": "^0.5.1",
     "rollup": "^1.16.2",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
@@ -44,7 +45,6 @@
     "eslint": "^5.16.0",
     "eslint-config-firstandthird": "^4.3.0",
     "eslint-plugin-import": "^2.18.0",
-    "rollup-plugin-babel": "^4.3.3",
     "sourcemap-validator": "^1.1.0",
     "tap": "^12.7.0",
     "tinybounce": "^1.1.0"
