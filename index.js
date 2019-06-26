@@ -9,11 +9,6 @@ const globals = require('rollup-plugin-node-globals');
 const { uglify } = require('rollup-plugin-uglify');
 const path = require('path');
 const fs = require('fs');
-const util = require('util');
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const exists = util.promisify(fs.exists);
-const mkdirp = require('mkdirp');
 
 class RollupTask extends TaskKitTask {
   get description() {
@@ -38,8 +33,6 @@ class RollupTask extends TaskKitTask {
         external: []
       },
       nodeResolve: {
-        module: true,
-        main: true,
         browser: true
       },
       formats: {
@@ -53,13 +46,103 @@ class RollupTask extends TaskKitTask {
       builtins: true,
       babel: {
         exclude: [],
-        presetConfig: {}
+        presetConfig: {
+          loose: true,
+          exclude: [
+            'transform-typeof-symbol'
+          ]
+        }
       }
     };
   }
 
+  async getPackage() {
+    let fileName = 'package.json';
+    let includePath = process.cwd();
+    const options = this.options;
+
+    if (typeof options.package === 'object') {
+      if (options.package.path) {
+        includePath = options.package.path;
+      }
+    } else if (typeof options.package === 'string') {
+      if (options.package.indexOf('package.json') > -1) {
+        fileName = options.package;
+      } else {
+        fileName = path.join(options.package, 'package.json');
+      }
+    }
+    const file = path.join(includePath, fileName);
+    if (await new Promise(resolve => fs.access(file, fs.constants.F_OK, err => resolve(err === null)))) {
+      const foreignPackage = require(file);
+      return foreignPackage || {};
+    }
+    return {};
+  }
+
+  getExternals(pkg) {
+    const externals = [];
+
+    if (this.options.external) {
+      if (Array.isArray(this.options.external)) {
+        this.options.external.forEach(external => externals.push(external));
+      } else if (typeof this.options.external === 'string') {
+        externals.push(this.options.external);
+      }
+    }
+
+    if (pkg && pkg.dependencies) {
+      Object.keys(pkg.dependencies).forEach(dep => externals.push(dep));
+    }
+
+    return externals;
+  }
+
+  async bundle(options, format, bundleI) {
+    let filename;
+
+    switch (format) {
+      case 'cjs':
+        filename = options.filename.replace('.js', '.cjs.js');
+        break;
+      case 'iife':
+        filename = options.filename.replace('.js', '.bundle.js');
+        break;
+      default:
+        filename = options.filename;
+    }
+
+    if (Array.isArray(format)) {
+      const bundle = await rollup({
+        input: options.input,
+        plugins: options.plugins,
+        external: []
+      });
+
+      return Promise.all(format.map(f => this.bundle(options, f, bundle)));
+    }
+
+    const external = format === 'esm' ? options.external : [];
+    const bundle = bundleI || await rollup({
+      input: options.input,
+      plugins: options.plugins,
+      external
+    });
+
+    let name = options.pkg.name || 'app';
+    name = name.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+
+    return bundle.write({
+      file: filename,
+      format,
+      name,
+      sourcemap: this.options.sourcemap
+    });
+  }
+
   async process(input, filename) {
-    const cacheName = `./rollup-cache/${path.basename(filename)}.rollup-cache`;
+    const pkg = await this.getPackage();
+    const external = this.getExternals(pkg);
 
     const plugins = [
       nodeResolve(this.options.nodeResolve)
@@ -90,37 +173,22 @@ class RollupTask extends TaskKitTask {
       }));
     }
 
-    if (this.options.cache && await exists(cacheName)) {
-      this.cache = JSON.parse(await readFile(cacheName));
-    }
-    const bundle = await rollup({
+    const bundleOptions = {
+      filename,
+      pkg,
       input,
       plugins,
-      external: this.options.rollup.external,
-      cache: this.cache
-    });
-    this.cache = bundle;
-
-    await bundle.write({
-      file: filename,
-      format: this.options.formats.cjs ? 'cjs' : 'iife',
-      name: 'app',
-      sourcemap: this.options.sourcemap
-    });
+      external
+    };
 
     if (this.options.formats.esm) {
-      await bundle.write({
-        file: `${filename.replace('.js', '.esm.js')}`,
-        format: 'esm',
-        name: 'app',
-        sourcemap: this.options.sourcemap
-      });
+      await this.bundle(bundleOptions, 'esm');
     }
 
-    if (this.options.cache) {
-      // make the caching dir if it does not exist:
-      mkdirp.sync('./rollup-cache');
-      await writeFile(cacheName, JSON.stringify(this.cache));
+    if (this.options.formats.cjs) {
+      await this.bundle(bundleOptions, ['cjs', 'iife']);
+    } else {
+      await this.bundle(bundleOptions, 'iife');
     }
   }
 }

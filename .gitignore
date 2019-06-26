@@ -1,6 +1,5 @@
 node_modules
-example/dist.js
-example/dist.js.map
+example/dist**
 *.rollup-cache
 test/output/*.js
 test/output/*.js.map

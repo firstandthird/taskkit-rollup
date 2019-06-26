@@ -4,13 +4,11 @@ tasks:
     - 'scripts'
 scripts:
   sourcemaps: true
-  minify: true
+  minify: false
   rollup:
-    external:
-      - 'codemirror'
   formats:
     esm: true
-    cjs: false
+    cjs: true
   commonjs:
     enabled: true
   files:
